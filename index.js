@@ -20,7 +20,8 @@ function load_files() {
 
                 var img = $("<img>", {
                     src: files_response[i],
-                    class: 'initialize'
+                    class: 'initialize',
+                    id: 'img-'+i
                 });
 
                 var dots = $('<div>', {
@@ -34,11 +35,33 @@ function load_files() {
                 // $('#dot_container').append(dots);
                 $('#image_container').append(img);
 
-                dots.click(function() {
-                    var index = $(this).attr('data_index');
-                    new_img_index = parseFloat(index);
-                    dot_chosen(new_img_index);
-                })
+                // dots.click(function() {
+                //     var index = $(this).attr('data_index');
+                //     new_img_index = parseFloat(index);
+                //     dot_chosen(new_img_index);
+                // });
+
+                // (function() {
+                //     $("#image_container").on("swipeleft", previous_image);
+                //     console.log("swipe function left is being called");
+
+                //     function previous_image(event) {
+                //         $(event.target);
+                //         prev_image();
+
+                //     }
+                // })();
+
+                // (function() {
+                //     $("#image_container").on("swiperight", fct_next_image);
+                //     console.log("swipe function right is being called");
+
+                //     function fct_next_image(event) {
+                //         $(event.target);
+                //         next_image();
+
+                //     }
+                // })();
             }
             initialize();
         }
@@ -103,15 +126,24 @@ function yes_display() {
             yes_array[i].css({
                 left: 0
             });
-            yes_array[i].addClass('yes_initialize col-md-4');
+            yes_array[i].addClass('yes_initialize col-xs-4 col-md-4');
             console.log(yes_array[i], " is num ", i);
             yes_array[i].attr('data-id', i);
             $('#wrapper').append(yes_array[i]);
 
+            (function() {
+                var self = $(yes_array[i]); //
+
+                self.click(function() {
+                    console.log("the click handler is working");
+                    self.addClass('no_choice');
+                    self.text('X');
+                });
+            })();
+            // this.
+            // var index = $(this).parent().attr('data_index');
         }
-
     }
-
 }
 
 function next_image() {
@@ -134,19 +166,47 @@ function prev_image() {
         next_img_index = img_array.length - 1;
         no_animation();
         current_image_index = next_img_index - 1;
-    }
-    else {
+    } else {
         next_img_index = current_image_index - 1;
         no_animation();
         current_image_index = next_img_index;
-        console.log("current image index: ", current_image_index);    }
+        console.log("current image index: ", current_image_index);
+    }
 }
+
+// $(document).on("pagecreate", "#image_container",function() {
+// $(function() {
+//     $("#image_container").on("swipeleft", previous_image);
+//     console.log("swipe function left is being called");
+
+//     function previous_image(event) {
+//         $(event.target);
+//         prev_image();
+
+//     }
+// });
+
+// $(function() {
+//     $("#image_container").on("swiperight", fct_next_image);
+//     console.log("swipe function right is being called");
+
+//     function fct_next_image(event) {
+//         $(event.target);
+//         next_image();
+
+//     }
+// });
+// $('#image_container').on('swiperight', function() {
+//     console.log("swipe function right is being called");
+//     next_image();
+// });
+
 
 
 
 $(document).ready(function() {
-
     load_files();
+
 
     $('#prev_button').click(function() {
         prev_image();
@@ -155,5 +215,12 @@ $(document).ready(function() {
     $('#next_button').click(function() {
         next_image();
     });
+
+    $("body").on('swiperight', '.initialize', function(){
+        next_image();
+    })
+    .on('swipeleft', '.initialize', function(){
+        prev_image();
+    });    
 
 });
