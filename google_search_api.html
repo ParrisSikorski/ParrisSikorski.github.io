@@ -1,0 +1,28 @@
+<html>
+  <head><script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <title>JSON/Atom Custom Search API Example</title>
+  </head>
+  <body>
+  <div>
+
+<gcse:search></gcse:search>
+</div>
+    <div id="content"></div>
+    <script>
+      function hndlr(response) {
+      	console.log(response);
+      for (var i = 0; i < response.items.length; i++) {
+        var item = response.items[i];
+        var img = $('<img>',{
+        	src: item.link});
+        $('#content').append(img);
+        // in production code, item.htmlTitle should have the HTML entities escaped.
+      //   document.getElementById("content").innerHTML += "<br>" + $('<img>',{src: item.link});
+      // 
+      }
+    }
+    </script>
+    <script src="https://www.googleapis.com/customsearch/v1?key=AIzaSyAXLTFyGsVrz9jpTYt23D6Dh3pvvLPGxAY&cx=003998773720353916744:1vnmbnhccze&q=frenchcuisine&callback=hndlr&searchType=image&imgSize=medium&rights=cc_publicdomain,cc_attribute, cc_sharealike,cc_noncommercial,cc_nonderived&imgType=photo">
+    </script>
+  </body>
+</html>

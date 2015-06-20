@@ -1,8 +1,8 @@
 <?php 
 session_start();
 
-if(file_exists("images")){
-$output['files'] = glob("images/*.jpg");
+if(file_exists("images/generic")){
+$output['files'] = glob("images/generic/*.jpg");
 $output['success'] = 'true';
 }
 else{

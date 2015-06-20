@@ -7,6 +7,7 @@ var dots_array = [];
 var yes_array = [];
 var no_array = [];
 
+
 function load_files() {
     $.ajax({
         dataType: 'json',
@@ -27,48 +28,18 @@ function load_files() {
                 var dots = $('<div>', {
                     data_index: i,
                     class: "dot_c"
-
                 });
 
                 img_array.push(img);
-                dots_array.push(dots);
-                // $('#dot_container').append(dots);
                 $('#image_container').append(img);
 
-                // dots.click(function() {
-                //     var index = $(this).attr('data_index');
-                //     new_img_index = parseFloat(index);
-                //     dot_chosen(new_img_index);
-                // });
-
-                // (function() {
-                //     $("#image_container").on("swipeleft", previous_image);
-                //     console.log("swipe function left is being called");
-
-                //     function previous_image(event) {
-                //         $(event.target);
-                //         prev_image();
-
-                //     }
-                // })();
-
-                // (function() {
-                //     $("#image_container").on("swiperight", fct_next_image);
-                //     console.log("swipe function right is being called");
-
-                //     function fct_next_image(event) {
-                //         $(event.target);
-                //         next_image();
-
-                //     }
-                // })();
             }
-            initialize();
+            initialize_images();
         }
     });
 }
 
-function initialize() {
+function initialize_images() {
     for (var i = 1; i < img_array.length; i++) {
         img_array[i].css({
             left: "-100%"
@@ -140,8 +111,6 @@ function yes_display() {
                     self.text('X');
                 });
             })();
-            // this.
-            // var index = $(this).parent().attr('data_index');
         }
     }
 }
@@ -173,36 +142,6 @@ function prev_image() {
         console.log("current image index: ", current_image_index);
     }
 }
-
-// $(document).on("pagecreate", "#image_container",function() {
-// $(function() {
-//     $("#image_container").on("swipeleft", previous_image);
-//     console.log("swipe function left is being called");
-
-//     function previous_image(event) {
-//         $(event.target);
-//         prev_image();
-
-//     }
-// });
-
-// $(function() {
-//     $("#image_container").on("swiperight", fct_next_image);
-//     console.log("swipe function right is being called");
-
-//     function fct_next_image(event) {
-//         $(event.target);
-//         next_image();
-
-//     }
-// });
-// $('#image_container').on('swiperight', function() {
-//     console.log("swipe function right is being called");
-//     next_image();
-// });
-
-
-
 
 $(document).ready(function() {
     load_files();

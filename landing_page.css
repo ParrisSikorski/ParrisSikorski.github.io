@@ -1,0 +1,30 @@
+.img_div_class {
+	/*margin: 10px;*/
+	bottom: 0px;
+	width: 100%;
+	background-color: #888888;
+	margin: 0 auto;
+	position: absolute;
+	padding: 0;
+}
+
+#search_container {
+	margin-bottom: 10px;
+}
+
+.img_class {
+	width: 100%;
+/*	margin: 0 auto;*/
+}
+
+.selected_food_type {
+	border: 10px solid lime;
+}
+
+.div_container_class {
+	position: relative;
+	overflow: hidden;
+	height: 215px;
+	width: 250px;
+/*	margin: 0 auto;*/
+}

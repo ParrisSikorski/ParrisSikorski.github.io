@@ -7,6 +7,60 @@ var dots_array = [];
 var yes_array = [];
 var no_array = [];
 
+// GOOGLE API ///////////////////////////////
+
+
+var map;
+var infowindow;
+
+function initialize() {
+  var pyrmont = new google.maps.LatLng(33.6483323,-117.754918);
+
+  map = new google.maps.Map(document.getElementById('map-canvas'), {
+    center: pyrmont,
+    zoom: 15
+  });
+
+  var request = {
+    location: pyrmont,
+    radius: 500,
+    types: ['store']
+  };
+  infowindow = new google.maps.InfoWindow();
+  var service = new google.maps.places.PlacesService(map);
+  service.nearbySearch(request, callback);
+}
+
+function callback(results, status) {
+  if (status == google.maps.places.PlacesServiceStatus.OK) {
+    for (var i = 0; i < results.length; i++) {
+      createMarker(results[i]);
+    }
+  }
+}
+
+function createMarker(place) {
+  var placeLoc = place.geometry.location;
+  var marker = new google.maps.Marker({
+    map: map,
+    position: place.geometry.location
+  });
+
+  google.maps.event.addListener(marker, 'click', function() {
+    infowindow.setContent(place.name);
+    infowindow.open(map, this);
+  });
+}
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+
+
+
+
+
+
+/////////// GOOGLE API END 
 function load_files() {
     $.ajax({
         dataType: 'json',
@@ -31,37 +85,7 @@ function load_files() {
                 });
 
                 img_array.push(img);
-                dots_array.push(dots);
-                // $('#dot_container').append(dots);
                 $('#image_container').append(img);
-
-                // dots.click(function() {
-                //     var index = $(this).attr('data_index');
-                //     new_img_index = parseFloat(index);
-                //     dot_chosen(new_img_index);
-                // });
-
-                // (function() {
-                //     $("#image_container").on("swipeleft", previous_image);
-                //     console.log("swipe function left is being called");
-
-                //     function previous_image(event) {
-                //         $(event.target);
-                //         prev_image();
-
-                //     }
-                // })();
-
-                // (function() {
-                //     $("#image_container").on("swiperight", fct_next_image);
-                //     console.log("swipe function right is being called");
-
-                //     function fct_next_image(event) {
-                //         $(event.target);
-                //         next_image();
-
-                //     }
-                // })();
             }
             initialize();
         }
@@ -84,7 +108,6 @@ function yes_animation() {
     img_array[next_img_index].css({
         'left': "-100%"
     });
-    // img_array[next_img_index].removeClass('img_hide');
     img_array[next_img_index].animate({
         left: "0"
     }, 500);
@@ -140,8 +163,6 @@ function yes_display() {
                     self.text('X');
                 });
             })();
-            // this.
-            // var index = $(this).parent().attr('data_index');
         }
     }
 }
@@ -174,35 +195,7 @@ function prev_image() {
     }
 }
 
-// $(document).on("pagecreate", "#image_container",function() {
-// $(function() {
-//     $("#image_container").on("swipeleft", previous_image);
-//     console.log("swipe function left is being called");
-
-//     function previous_image(event) {
-//         $(event.target);
-//         prev_image();
-
-//     }
-// });
-
-// $(function() {
-//     $("#image_container").on("swiperight", fct_next_image);
-//     console.log("swipe function right is being called");
-
-//     function fct_next_image(event) {
-//         $(event.target);
-//         next_image();
-
-//     }
-// });
-// $('#image_container').on('swiperight', function() {
-//     console.log("swipe function right is being called");
-//     next_image();
-// });
-
-
-
+function
 
 $(document).ready(function() {
     load_files();
