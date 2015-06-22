@@ -7,12 +7,43 @@ var dots_array = [];
 var yes_array = [];
 var no_array = [];
 
+// function load_landing_page() {
+//     $.ajax({
+//         dataType: 'json',
+//         method: 'GET',
+//         url: 'dir_listing.php',
+//         cache: false,
+//         crossDomain: true,
+//         success: function(response) {
+//             files_response = response['files'];
+//             for (var i = 0; i < files_response.length; i++) {
+
+//                 var img = $("<img>", {
+//                     src: files_response[i],
+//                     class: 'initialize',
+//                     id: 'img-'+i
+//                 });
+
+//                 var dots = $('<div>', {
+//                     data_index: i,
+//                     class: "dot_c"
+//                 });
+
+//                 img_array.push(img);
+//                 $('#lnd_img_cntnr').append(img);
+
+//             }
+//             initialize_images();
+//         }
+//     });
+// }
+
 
 function load_files() {
     $.ajax({
         dataType: 'json',
         method: 'GET',
-        url: 'dir_listing.php',
+        url: 'directory_listing.php',
         cache: false,
         crossDomain: true,
         success: function(response) {
@@ -142,6 +173,99 @@ function prev_image() {
         console.log("current image index: ", current_image_index);
     }
 }
+
+////////// keep user logged in ////////////////////
+
+//runs on document ready
+//input: uses the function getCookie to check the sessionid and compares to server of current session id using an ajax call
+//output: if sessionids match then it will call function load_user_data upon response.success to reveal multiple_todo_list. If it doesn't match
+//then it will call logout_to_mainpage which will load the login.html page for the user to login.
+/*function keep_user_logged_in() {
+    $.ajax({
+        dataType: 'json',
+        data: {
+            session_id: getCookie('sessionid'),
+        },
+        method: 'POST',
+        url: 'http://s-apis.learningfuze.com/todo/getLoggedInUserInfo',
+        cache: false,
+        crossDomain: true,
+        success: function(response) {
+            window.response = response;
+            if (response.success) {
+                console.log(response);
+                load_user_data();
+
+            } else if (!response.success) {
+
+                logout_to_mainpage();
+
+            }
+        }
+    });
+}*/
+
+
+///////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////
+
+//upon clicking logout button the ajax call will use the login.html page to fill in the index.html container with response
+/*function logout_to_mainpage() {
+        $.ajax({
+            dataType: 'html',
+            url: 'login.html',
+            cache: false,
+            success: function(response) {
+                $('.container').html('');
+                $('.container').html(response);
+                $('#login_button').click(login_to_server);
+                $('#create_account_button').click(function() {
+                    log_to_creation_page();
+                })
+            }*/
+/////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////
+
+//input: takes in cookie key of sessionid 
+//output: returns the value of the cookie name
+/*function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') c = c.substring(1);
+        if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
+    }
+    return "";
+}*/
+
+
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+
+//adding glyph color to create page
+//input: when clicking create account the user will be redirected to a new page
+//output: new page loaded with creation_page.html
+/*function log_to_creation_page() {
+    $.ajax({
+        dataType: 'html',
+        url: 'creation_page.html',
+        cache: false,
+        success: function(response) {
+            $('.container').html('');
+            $('.container').html(response);
+            $("form input").change(function() {
+                validate_create();
+            });
+            $('#validate_new_account').click(function() {
+                create_account();
+            })
+        }
+    })
+}*/
 
 $(document).ready(function() {
     load_files();

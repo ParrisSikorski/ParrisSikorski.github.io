@@ -1,18 +1,18 @@
 //place_details.js
 
 function initialize_details(placeId) {
-  // var map = new google.maps.Map(document.getElementById('map-canvas'), {
-  //   center: new google.maps.LatLng(33.8, -117.9),
-  //   zoom: 13
-  // });
+  var map = new google.maps.Map(document.getElementById('map-canvas'), {
+    center: new google.maps.LatLng(33.8, -117.9),
+    zoom: 13
+  });
 
   var request = {
-    placeId: '',
+    placeId: 'ChIJx6oOPoze3IAR4aCGakw8AA4',
   };
 
-  // var infowindow = new google.maps.InfoWindow();
-  // var service = new google.maps.places.PlacesService(map);
-  // var photo = '';
+  var infowindow = new google.maps.InfoWindow();
+  var service = new google.maps.places.PlacesService(map);
+  var photo = '';
   service.getDetails(request, function(place, status) {
     if (status == google.maps.places.PlacesServiceStatus.OK) {
     	console.log(place.photos.length);
@@ -36,4 +36,4 @@ function initialize_details(placeId) {
   	});
 }
 
-// google.maps.event.addDomListener(window, 'load', initialize_details);
+google.maps.event.addDomListener(window, 'load', initialize_details);

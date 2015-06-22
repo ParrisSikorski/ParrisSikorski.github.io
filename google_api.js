@@ -7,10 +7,10 @@ var photo;
 var restaurant_id = [];
 
 function initialize() {
-  var pyrmont = new google.maps.LatLng(33.6483323,-117.754918);
+  var center = new google.maps.LatLng(33.6483323,-117.754918);
 
   map = new google.maps.Map(document.getElementById('map-canvas'), {
-    center: pyrmont,
+    center: center,
     zoom: 15
   });
 
@@ -18,7 +18,7 @@ function initialize() {
     location: pyrmont,
     radius: 10000,
     types: ['cafe','meal_takeaway','restaurant','bakery','food','meal_delivery'],
-    keyword: 'New York Pizza',
+    keyword: 'chinese|pizza|steak|italian',
     // zagatselected: true,
   };
   infowindow = new google.maps.InfoWindow();
