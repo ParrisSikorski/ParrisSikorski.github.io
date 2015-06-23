@@ -7,6 +7,12 @@ var new_img_index = 0;
 var search_array = [];
 var click_array = [];
 var string_array = [];
+var next_img_index = 1;
+var new_img_index = 0;
+// var dots_array = [];
+var yes_array = [];
+var no_array = [];
+var valid_array = [];
 
 function load_landing_page() {
     $.ajax({
@@ -66,6 +72,195 @@ function load_landing_page() {
     });
 }
 
+    /////////// END USER LOG IN / OUT FUNCTIONALITY /////////////////////
+
+function logout_to_mainpage() {
+    $.ajax({
+        dataType: 'html',
+        url: 'login.html',
+        cache: false,
+        success: function(response) {
+            $('#landing_container').html('');
+            $('#landing_container').html(response);
+            $('#login_button').click(login_to_server);
+            $('#create_account_button').click(function() {
+                log_to_creation_page();
+            })
+        }
+    })
+}
+
+function load_user_data() {
+    $.ajax({
+        dataType: 'html',
+        url: 'landing_template.html',
+        cache: false,
+        success: function(response) {
+            $('#landing_container').html('');
+            $('#landing_container').html(response);
+            $('#logout_button').click(logout_server);
+
+            populate_success_data();
+        }
+    })
+}
+
+
+function log_to_creation_page() {
+    $.ajax({
+        dataType: 'html',
+        url: 'creation_page.html',
+        cache: false,
+        success: function(response) {
+            $('#landing_container').html('');
+            $('#landing_container').html(response);
+            $("form input").change(function() {
+                validate_create();
+            });
+            $('#validate_new_account').click(function() {
+                create_account();
+            })
+        }
+    })
+}
+
+function load_login_page() {
+
+}
+
+function validate_create() {
+    $.ajax({
+        dataType: 'json',
+        data: {
+            username: $('#N_user_name').val(),
+            password: $('#N_password1').val(),
+            password2: $('#N_password2').val(),
+            email: $('#N_user_email').val(),
+            firstName: $('#N_first_name').val(),
+            lastName: $('#N_last_name').val()
+        },
+        method: 'POST',
+        url: "http://s-apis.learningfuze.com/todo/validateUserInfo",
+        cache: false,
+        crossDomain: true,
+        success: function(response) {
+            $("form").change(function() {
+                $('form span').addClass('glyphicon glyphicon-check')
+            });
+            window.validate_response = response;
+            if (validate_response.success == true) {
+                $("form input").change(function() {
+                    $('form span').addClass('glyphicon glyphicon-check green')
+                });
+                console.log('validate:', validate_response)
+            } else if (validate_response.success == false) {
+                $('form span').addClass('glyphicon glyphicon-check')
+                console.log('validate:', validate_response)
+            }
+        }
+    });
+}
+
+function create_account() {
+    $.ajax({
+        dataType: 'json',
+        data: {
+            username: $('#N_user_name').val().toLowerCase(),
+            password: $('#N_password1').val(),
+            password2: $('#N_password2').val(),
+            email: $('#N_user_email').val(),
+            firstName: $('#N_first_name').val(),
+            lastName: $('#N_last_name').val(),
+        },
+        method: 'POST',
+        url: 'http://s-apis.learningfuze.com/todo/newAccount',
+        cache: false,
+        crossDomain: true,
+        success: function(response) {
+            window.response = response;
+            if (response.success) {
+                console.log('Success:', response.success);
+                logout_to_mainpage();
+
+            } else if (!response.success) {
+                console.log('failed:', response.errors);
+                $('.alert').remove();
+                var alert = $('<div>').addClass('alert alert-danger').html(response.errors[0]);
+                $('#creation_div > form').append(alert);
+            }
+        }
+
+    });
+}
+
+function keep_user_logged_in() {
+    $.ajax({
+        dataType: 'json',
+        data: {
+            session_id: getCookie('sessionid'),
+        },
+        method: 'POST',
+        url: 'http://s-apis.learningfuze.com/todo/getLoggedInUserInfo',
+        cache: false,
+        crossDomain: true,
+        success: function(response) {
+            window.response = response;
+            if (response.success) {
+                console.log(response);
+                load_user_data();
+
+            } else if (!response.success) {
+
+                logout_to_mainpage();
+
+            }
+        }
+    });
+}
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') c = c.substring(1);
+        if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
+    }
+    return "";
+}
+
+
+function login_to_server() {
+    console.log("ajax call");
+    $.ajax({
+        dataType: 'json',
+        data: {
+            username: $('#user_name').val(),
+            password: $('#password').val()
+        },
+        url: 'login.php',
+        method: 'POST',
+        cache: false,
+        crossDomain: true,
+        success: function(response) {
+            window.response = response;
+            if (response.success) {
+                load_user_data();
+                document.cookie = 'sessionid=' + response.session_id;
+                document.cookie = 'username=' + response.username;
+                $('.alert').remove();
+            } else if (!response.success) {
+                $('.alert').remove();
+                var alert = $('<div>').addClass('alert alert-danger').html(response.errors[0]);
+                $('body').append(alert);
+
+            }
+        }
+    });
+
+
+    /////////// END USER LOG IN / OUT FUNCTIONALITY /////////////////////
+
 function google_search(type) {
     var base_url = 'https://www.googleapis.com/customsearch/v1?';
     var search_obj = {
@@ -74,7 +269,7 @@ function google_search(type) {
         q: type + ' food',
         callback: 'hndlr',
         searchType: 'image',
-        imgSize: 'medium',
+        imgSize: 'xxlarge',
         rights: 'cc_publicdomain,cc_attribute, cc_sharealike,cc_noncommercial,cc_nonderived',
         imgType: 'photo'
     }
@@ -132,9 +327,25 @@ function hndlr(response) {
     //     });
     //     search_array.push(img);
     // }
+    var valid_array = [];
+    var invalid_img = [];
     for (var i = 0; i < response.items.length; i++) {
-        var item = response.items[i];
-        search_array.push(item.link);
+        var link = response.items[i].link;
+        /////////////////////////////
+        /*(function(url) {
+            var urlValidatePromise = validate_url(url);
+
+            urlValidatePromise.then(function() {
+                search_array.push(url);  
+                console.log("Search array: ", search_array.length); 
+            }).fail(function() {
+                console.log("img doesnt exist");
+            }).always(function() {
+                validate_finished(url, response, search_array);
+            });
+        })(link);*/
+        ////////////////////////////
+        search_array.push(link);
     }
     $('#search_container').html('');
     $('#lnd_img_cntnr').html('');
@@ -143,6 +354,20 @@ function hndlr(response) {
     // for (i = 0; i < search_array.length; i++) {
     //     $('#lnd_img_cntnr').append(search_array[i]);
     // }
+}
+
+function validate_finished(url, response, search_array) {
+    console.log("validate_finished is called");
+    valid_array.push(url);
+    console.log("valid_array length: ", valid_array.length);
+    if (valid_array.length == response.items.length) {
+        $('#search_container').html('');
+        $('#lnd_img_cntnr').html('');
+        shuffle(search_array);
+        send_to_swipe_page(search_array);
+    } else {
+        return;
+    }
 }
 
 function query_button_selected() {
@@ -155,24 +380,46 @@ function query_button_selected() {
     }
 }
 
-function send_to_swipe_page(search_array) {
-	$.ajax({
-        dataType: 'html',
-        url: 'swipe_page.html',
-        cache: false,
-        success: function(response) {
-            $('#landing_container').html(response);
-            load_swipe_pages(search_array);
-        }
+function validate_url(url) {
+    return $.ajax({
+        url: url
     })
 }
-/////////// swipe pages /////////////
+
+function send_to_swipe_page(search_array) {
+        $.ajax({
+            dataType: 'html',
+            url: 'swipe_page.html',
+            cache: false,
+            success: function(response) {
+
+                $('body').html(response);
+                load_swipe_pages(search_array);
+
+
+                $('#prev_button').click(function() {
+                    prev_image();
+                });
+
+                $('#next_button').click(function() {
+                    next_image();
+                });
+
+                $("body").on('swiperight', '.initialize', function() {
+                        next_image();
+                    })
+                    .on('swipeleft', '.initialize', function() {
+                        prev_image();
+                    });
+            }
+        })
+    }
+    /////////// swipe pages /////////////
 
 
 function load_swipe_pages(search_array) {
-	console.log("in load swipe page search array: ", search_array);
+    console.log("in load swipe page search array: ", search_array);
     for (var i = 0; i < search_array.length; i++) {
-    	console.log(search_array[i].src);
         var img = $("<img>", {
             src: search_array[i],
             class: 'initialize',
@@ -183,9 +430,8 @@ function load_swipe_pages(search_array) {
         //     data_index: i,
         //     class: "dot_c"
         // });
-        img_array.push(search_array[i]);
+        img_array.push(img);
         $('#image_container').append(img);
-        // $('#image_container').append(search_array[i]);
 
     }
     initialize_images();
@@ -298,6 +544,9 @@ function prev_image() {
 
 /////////// swipe functionality ending ///////
 
+
+
+}
 
 
 
