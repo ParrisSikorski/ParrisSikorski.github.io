@@ -1,4 +1,5 @@
 // landing_page.js
+var storage_array = [];
 var image_array = [];
 var current_image_index = 0;
 var img_array = [];
@@ -13,6 +14,9 @@ var new_img_index = 0;
 var yes_array = [];
 var no_array = [];
 var valid_array = [];
+// var type = '';
+var gbl_type = '';
+
 
 function load_landing_page() {
     $.ajax({
@@ -53,12 +57,16 @@ function load_landing_page() {
 
                 img.click(function() {
                     // $(this).data('type');
-                    var type = $(this).data('type');
-                    console.log(type);
-                    string_array.push(type);
-                    check_clicks();
-                    $(this).addClass('selected_food_type');
-                    // google_search(type);
+                    gbl_type = '';
+                    if (click_array.length <= 5) {
+                        var type = $(this).data('type');
+                        console.log(type);
+                        gbl_type = type;
+                        string_array.push(type);
+                        google_search(type);
+                        $(this).addClass('selected_food_type');
+                        // google_search(type);
+                    }
                 });
 
                 img_div.append(img, title);
@@ -72,7 +80,7 @@ function load_landing_page() {
     });
 }
 
-    /////////// END USER LOG IN / OUT FUNCTIONALITY /////////////////////
+/////////// USER LOG IN / OUT FUNCTIONALITY /////////////////////
 
 function logout_to_mainpage() {
     $.ajax({
@@ -82,7 +90,11 @@ function logout_to_mainpage() {
         success: function(response) {
             $('#landing_container').html('');
             $('#landing_container').html(response);
-            $('#login_button').click(login_to_server);
+            $('#login_button').click(function() {
+
+                login_to_server();
+                console.log('after login call');
+            });
             $('#create_account_button').click(function() {
                 log_to_creation_page();
             })
@@ -98,9 +110,14 @@ function load_user_data() {
         success: function(response) {
             $('#landing_container').html('');
             $('#landing_container').html(response);
-            $('#logout_button').click(logout_server);
+            load_landing_page();
+            $('#start_query_button').click(function() {
+                console.log('button clicked');
+                query_button_selected()
+            });
+            // $('#logout_button').click(logout_server);
 
-            populate_success_data();
+            // populate_success_data();
         }
     })
 }
@@ -189,34 +206,33 @@ function create_account() {
                 $('#creation_div > form').append(alert);
             }
         }
-
     });
 }
 
-function keep_user_logged_in() {
-    $.ajax({
-        dataType: 'json',
-        data: {
-            session_id: getCookie('sessionid'),
-        },
-        method: 'POST',
-        url: 'http://s-apis.learningfuze.com/todo/getLoggedInUserInfo',
-        cache: false,
-        crossDomain: true,
-        success: function(response) {
-            window.response = response;
-            if (response.success) {
-                console.log(response);
-                load_user_data();
+// function keep_user_logged_in() {
+//     $.ajax({
+//         dataType: 'json',
+//         data: {
+//             session_id: getCookie('sessionid'),
+//         },
+//         method: 'POST',
+//         url: 'http://s-apis.learningfuze.com/todo/getLoggedInUserInfo',
+//         cache: false,
+//         crossDomain: true,
+//         success: function(response) {
+//             window.response = response;
+//             if (response.success) {
+//                 console.log(response);
+//                 load_user_data();
 
-            } else if (!response.success) {
+//             } else if (!response.success) {
 
-                logout_to_mainpage();
+//                 logout_to_mainpage();
 
-            }
-        }
-    });
-}
+//             }
+//         }
+//     });
+// }
 
 function getCookie(cname) {
     var name = cname + "=";
@@ -230,24 +246,30 @@ function getCookie(cname) {
 }
 
 
+
+
 function login_to_server() {
-    console.log("ajax call");
+    console.log("login_to_server ajax call");
     $.ajax({
         dataType: 'json',
+        url: 'login.php',
+        method: 'POST',
         data: {
             username: $('#user_name').val(),
             password: $('#password').val()
         },
-        url: 'login.php',
-        method: 'POST',
         cache: false,
         crossDomain: true,
         success: function(response) {
+            console.log("ajax call success");
+            console.log(response);
             window.response = response;
             if (response.success) {
+                console.log("great success");
                 load_user_data();
                 document.cookie = 'sessionid=' + response.session_id;
                 document.cookie = 'username=' + response.username;
+                // load_landing_page();
                 $('.alert').remove();
             } else if (!response.success) {
                 $('.alert').remove();
@@ -257,9 +279,10 @@ function login_to_server() {
             }
         }
     });
+}
 
 
-    /////////// END USER LOG IN / OUT FUNCTIONALITY /////////////////////
+/////////// END USER LOG IN / OUT FUNCTIONALITY /////////////////////
 
 function google_search(type) {
     var base_url = 'https://www.googleapis.com/customsearch/v1?';
@@ -311,12 +334,13 @@ function build_query_string(search_obj) {
 
 function check_clicks() {
     if (string_array.length > 4) {
-        query_button_selected();
+        query_button_selected(search_array);
     }
 }
 
 function hndlr(response) {
     console.log(response);
+    console.log('type: ', gbl_type);
     click_array.push(1);
     // for (var i = 0; i < response.items.length; i++) {
     //     var item = response.items[i];
@@ -327,8 +351,9 @@ function hndlr(response) {
     //     });
     //     search_array.push(img);
     // }
-    var valid_array = [];
-    var invalid_img = [];
+    var insert_array = [];
+    // var valid_array = [];
+    // var invalid_img = [];
     for (var i = 0; i < response.items.length; i++) {
         var link = response.items[i].link;
         /////////////////////////////
@@ -346,37 +371,109 @@ function hndlr(response) {
         })(link);*/
         ////////////////////////////
         search_array.push(link);
+        insert_array.push(link);
+
     }
-    $('#search_container').html('');
-    $('#lnd_img_cntnr').html('');
-    shuffle(search_array);
-    send_to_swipe_page(search_array);
+
+    insert_images_to_db(gbl_type, insert_array);
+
+    // check_clicks(search_array);
+
+    // send_to_swipe_page(search_array);
     // for (i = 0; i < search_array.length; i++) {
     //     $('#lnd_img_cntnr').append(search_array[i]);
     // }
+    // checked_clicks();
 }
 
-function validate_finished(url, response, search_array) {
-    console.log("validate_finished is called");
-    valid_array.push(url);
-    console.log("valid_array length: ", valid_array.length);
-    if (valid_array.length == response.items.length) {
-        $('#search_container').html('');
-        $('#lnd_img_cntnr').html('');
-        shuffle(search_array);
-        send_to_swipe_page(search_array);
-    } else {
-        return;
-    }
+// function get_type(type) {
+// 	return type;
+// }
+
+function insert_images_to_db(gbl_type, insert_array) {
+    console.log("this is being called");
+    $.ajax({
+        dataType: 'json',
+        url: 'query_type.php',
+        method: 'POST',
+        data: {
+            type: gbl_type,
+            insert_array: insert_array,
+        },
+        cache: true,
+        crossDomain: true,
+        success: function(response) {
+            console.log("ajax call success");
+            console.log(response);
+            window.response = response;
+            if (response.success) {
+                response_array = response;
+                for (var i = 0; i < response_array.length; i++) {
+                    search_array.push(response_array[i]);
+                }
+                query_button_selected(search_array);
+            } else if (!response.success) {
+
+            }
+        }
+    });
 }
+
+
+
+// function query_food_types(type){
+// 	$.ajax({
+// 	dataType: 'json',
+//         url: 'type_query.php',
+//         method: 'POST',
+//         data: {
+//         	type: type,
+//         },
+//         cache: true,
+//         crossDomain: true,
+//         success: function(response) {
+//             console.log("ajax call success");
+//             console.log(response);
+//             window.response = response;
+//             if (response.success) {
+//             	response_array = response;
+//                for(var i = 0; response_array.length){
+//                		search_array.push(response_array[i]);
+//                }
+//             query_button_selected(search_array);
+//             } else if (!response.success) {
+
+//             }
+//         }
+//     });
+// }
+
+// function validate_finished(url, response, search_array) {
+//     console.log("validate_finished is called");
+//     valid_array.push(url);
+//     console.log("valid_array length: ", valid_array.length);
+//     if (valid_array.length == response.items.length) {
+//         $('#search_container').html('');
+//         $('#lnd_img_cntnr').html('');
+//         shuffle(search_array);
+//         send_to_swipe_page(search_array);
+//     } else {
+//         return;
+//     }
+// }
 
 function query_button_selected() {
     if (string_array.length == 0) {
         $('#search_container').append(' Please click on at least 1 food image before starting search');
     } else {
-        for (var i = 0; i < string_array.length; i++) {
-            google_search(string_array[i]);
-        }
+        // for (var i = 0; i < string_array.length; i++) {
+        //     google_search(string_array[i]);
+        // }
+        shuffle(search_array);
+        // google_search().then(function(){
+        send_to_swipe_page();
+        // } 
+        //);
     }
 }
 
@@ -386,7 +483,12 @@ function validate_url(url) {
     })
 }
 
-function send_to_swipe_page(search_array) {
+// function array_storage(search_array) {
+//     storage_array = storage_array.concat(search_array);
+// }
+// return storage_array;
+
+function send_to_swipe_page() {
         $.ajax({
             dataType: 'html',
             url: 'swipe_page.html',
@@ -394,7 +496,7 @@ function send_to_swipe_page(search_array) {
             success: function(response) {
 
                 $('body').html(response);
-                load_swipe_pages(search_array);
+                load_swipe_pages();
 
 
                 $('#prev_button').click(function() {
@@ -417,8 +519,11 @@ function send_to_swipe_page(search_array) {
     /////////// swipe pages /////////////
 
 
-function load_swipe_pages(search_array) {
+function load_swipe_pages() {
     console.log("in load swipe page search array: ", search_array);
+    // array_storage();
+    $('#search_container').html('');
+    $('#lnd_img_cntnr').html('');
     for (var i = 0; i < search_array.length; i++) {
         var img = $("<img>", {
             src: search_array[i],
@@ -430,23 +535,27 @@ function load_swipe_pages(search_array) {
         //     data_index: i,
         //     class: "dot_c"
         // });
+
         img_array.push(img);
         $('#image_container').append(img);
 
     }
-    initialize_images();
+    initialize_images(img_array);
 }
 
 
-function initialize_images() {
+function initialize_images(img_array) {
+
     for (var i = 1; i < img_array.length; i++) {
         img_array[i].css({
             left: "-100%"
         })
     }
+    // img_array[current_image_index].css({
     img_array[current_image_index].css({
         'left': "0%"
     });
+
 
 }
 
@@ -546,16 +655,13 @@ function prev_image() {
 
 
 
-}
-
 
 
 $(document).ready(function() {
-    load_landing_page();
 
-    $('#start_query_button').click(function() {
-        query_button_selected()
-    });
+    logout_to_mainpage();
+
+
 
     // $('#prev_button').click(function() {
     //     prev_image();
