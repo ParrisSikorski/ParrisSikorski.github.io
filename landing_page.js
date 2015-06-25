@@ -30,7 +30,7 @@ function load_landing_page() {
             for (var i = 0; i < files_response.length; i++) {
 
                 var file_name = files_response[i].substring(files_response[i].lastIndexOf('/') + 1, files_response[i].lastIndexOf('.'));
-                console.log(file_name);
+                // console.log(file_name);
 
                 var img_div = $('<div>', {
                     class: 'img_div_class img-center'
@@ -53,19 +53,21 @@ function load_landing_page() {
                 var title = $('<h6>', {
                     text: file_name,
                     class: 'text-center'
-                }
-)
+                });
+
                 img.click(function() {
                     // $(this).data('type');
                     gbl_type = '';
+                    var type = $(this).data('type');
+                    click_array.push(type);
                     if (click_array.length <= 5) {
-                        var type = $(this).data('type');
+                        // var type = $(this).data('type');
                         console.log(type);
                         gbl_type = type;
                         string_array.push(type);
-                        google_search(type);
+                        check_db_for_images(gbl_type);
+                        // google_search(gbl_type);
                         $(this).addClass('selected_food_type');
-                        // google_search(type);
                     }
                 });
 
@@ -93,13 +95,31 @@ function logout_to_mainpage() {
             $('#login_button').click(function() {
 
                 login_to_server();
-                console.log('after login call');
+                // console.log('after login call');
             });
             $('#create_account_button').click(function() {
                 log_to_creation_page();
             })
         }
     })
+}
+
+function logout(){
+	console.log("inside the logout function");
+	$.ajax({
+		dataType: 'JSON',
+		url: 'log_out.php',
+		method: 'POST',
+		success: function(response){
+			console.log('response: ', response);
+			if (response.success){
+				load_user_data();
+			}
+			else {
+				logout_to_mainpage();
+			}
+		}
+	})
 }
 
 function load_user_data() {
@@ -113,9 +133,13 @@ function load_user_data() {
             load_landing_page();
             $('#start_query_button').click(function() {
                 console.log('button clicked');
-                query_button_selected()
+                query_button_selected();
             });
-            // $('#logout_button').click(logout_server);
+            $('#logout_button').click(function() {
+                console.log('button clicked');
+                $('#logout_button').click(logout());
+
+            });
 
             // populate_success_data();
         }
@@ -209,30 +233,30 @@ function create_account() {
     });
 }
 
-// function keep_user_logged_in() {
-//     $.ajax({
-//         dataType: 'json',
-//         data: {
-//             session_id: getCookie('sessionid'),
-//         },
-//         method: 'POST',
-//         url: 'http://s-apis.learningfuze.com/todo/getLoggedInUserInfo',
-//         cache: false,
-//         crossDomain: true,
-//         success: function(response) {
-//             window.response = response;
-//             if (response.success) {
-//                 console.log(response);
-//                 load_user_data();
+function keep_user_logged_in() {
+    $.ajax({
+        dataType: 'json',
+        data: {
+            session_id: getCookie('sessionid'),
+        },
+        method: 'POST',
+        url: 'http://s-apis.learningfuze.com/todo/getLoggedInUserInfo',
+        cache: false,
+        crossDomain: true,
+        success: function(response) {
+            window.response = response;
+            if (response.success) {
+                console.log(response);
+                load_user_data();
 
-//             } else if (!response.success) {
+            } else if (!response.success) {
 
-//                 logout_to_mainpage();
+                logout_to_mainpage();
 
-//             }
-//         }
-//     });
-// }
+            }
+        }
+    });
+}
 
 function getCookie(cname) {
     var name = cname + "=";
@@ -249,7 +273,7 @@ function getCookie(cname) {
 
 
 function login_to_server() {
-    console.log("login_to_server ajax call");
+    // console.log("login_to_server ajax call");
     $.ajax({
         dataType: 'json',
         url: 'login.php',
@@ -261,11 +285,11 @@ function login_to_server() {
         cache: false,
         crossDomain: true,
         success: function(response) {
-            console.log("ajax call success");
+            // console.log("ajax call success");
             console.log(response);
             window.response = response;
             if (response.success) {
-                console.log("great success");
+                // console.log("great success");
                 load_user_data();
                 document.cookie = 'sessionid=' + response.session_id;
                 document.cookie = 'username=' + response.username;
@@ -279,6 +303,26 @@ function login_to_server() {
             }
         }
     });
+}
+
+function check_login() {
+	$.ajax({
+		dataType: 'JSON',
+		url: 'logged_in.php',
+		method: 'POST',
+		success: function(response){
+			// if (response.success){
+				console.log('response: ', response);
+
+			// }
+			if (response.success){
+				load_user_data();
+			}
+			else {
+				logout_to_mainpage();
+			}
+		}
+	})
 }
 
 
@@ -334,23 +378,13 @@ function build_query_string(search_obj) {
 
 function check_clicks() {
     if (string_array.length > 4) {
-        query_button_selected(search_array);
+        query_button_selected();
     }
 }
 
 function hndlr(response) {
     console.log(response);
     console.log('type: ', gbl_type);
-    click_array.push(1);
-    // for (var i = 0; i < response.items.length; i++) {
-    //     var item = response.items[i];
-    //     var img = $('<img>', {
-    //         src: item.link,
-    //         class: 'initialize',
-    //         id: 'img-'+i
-    //     });
-    //     search_array.push(img);
-    // }
     var insert_array = [];
     // var valid_array = [];
     // var invalid_img = [];
@@ -410,8 +444,11 @@ function insert_images_to_db(gbl_type, insert_array) {
                 response_array = response;
                 for (var i = 0; i < response_array.length; i++) {
                     search_array.push(response_array[i]);
+                    console.log('search array: ', search_array[i]);
                 }
-                query_button_selected(search_array);
+                console.log("search array: ", search_array);
+                check_clicks();
+                // query_button_selected(search_array);
             } else if (!response.success) {
 
             }
@@ -419,6 +456,37 @@ function insert_images_to_db(gbl_type, insert_array) {
     });
 }
 
+
+function check_db_for_images(gbl_type) {
+	// console.log('i am being called');
+	$.ajax({
+		dataType: 'json',
+		method: 'POST',
+		data: {
+			type: gbl_type,
+		},
+		url: 'check_db_for_images.php',
+		cache: true,
+		crossDomain: true,
+		success: function(response){
+			if (response.success){
+				response_array = response.links;
+				for(var i = 0; i < response_array.length; i++){
+
+					search_array.push(response_array[i].img_src);
+					console.log(search_array[i]);
+
+				}
+				console.log("search_array: ",search_array);
+				// check_clicks();
+			}
+				// query_button_selected(search_array);
+			else{
+				// google_search(gbl_type);
+			}
+		}
+	})
+}
 
 
 // function query_food_types(type){
@@ -659,8 +727,8 @@ function prev_image() {
 
 $(document).ready(function() {
 
-    logout_to_mainpage();
-
+    // logout_to_mainpage();
+    check_login();
 
 
     // $('#prev_button').click(function() {

@@ -11,6 +11,11 @@
 #search_container {
 	margin-bottom: 10px;
 }
+#logout_button {
+	height: 25px;
+	width: 75px;
+	/*color: #888888;*/
+}
 
 .img_class {
 	width: 100%;
