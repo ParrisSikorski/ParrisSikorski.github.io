@@ -33,11 +33,11 @@ function load_landing_page() {
                 console.log(file_name);
 
                 var img_div = $('<div>', {
-                    class: 'img_div_class col-xs-4 col-md-2 img-responsive img-center'
+                    class: 'img_div_class img-center'
                 });
 
                 var div_container = $('<div>', {
-                    class: 'div_container_class col-xs-4 col-md-2 img-responsive img-center'
+                    class: 'div_container_class col-xs-4 col-md-2 img-center'
                 });
 
                 var img = $("<img>", {
@@ -53,8 +53,8 @@ function load_landing_page() {
                 var title = $('<h6>', {
                     text: file_name,
                     class: 'text-center'
-                })
-
+                }
+)
                 img.click(function() {
                     // $(this).data('type');
                     gbl_type = '';
@@ -72,8 +72,8 @@ function load_landing_page() {
                 img_div.append(img, title);
                 div_container.append(img_div);
                 image_array.push(img);
-                $('#lnd_img_cntnr').append(div_container);
-
+                // $('#lnd_img_cntnr').append(div_container);
+     			$('#landing_container').append(div_container);
             }
             // initialize_images();
         }
