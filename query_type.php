@@ -23,7 +23,7 @@
 
 	$result = mysqli_query($db,$query);
 
-	// print_r($result);
+	print_r($result);
 	print_r($to_insert);
 	if(mysqli_num_rows($result)>0){
 	// if($result = mysqli_query($db,$query)){
@@ -44,17 +44,19 @@
 
 		}
 		$insert = substr($insert,0,-1);
-		print("insert query = $insert");
-		//$result = mysqli_query($db,$insert);
-		print_r($insert.";");
+		// print("insert query = $insert");
+		$result = mysqli_query($db,$insert);
+		// print_r($insert.";");
+		print_r($result);
+		print_r(mysqli_affected_rows($result));
 	}
 			
-	// 		if(mysqli_affected_rows($db)>0){
-	// 			$output['success']=true;
-	// 		}
-	// 		else{
-	// 			$output['success'] = false;
-	// 		}
+			// if(mysqli_affected_rows($db)>0){
+			// 	$output['success']=true;
+			// }
+			// else{
+			// 	$output['success'] = false;
+			// }
 		
 	// }
 

@@ -5,6 +5,14 @@ var infowindow;
 var photo;
 var restaurant_id = [];
 
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition, showError);
+    } else { 
+        x.innerHTML = "Geolocation is not supported by this browser.";
+    }
+}
+
 function initialize() {
     var center = new google.maps.LatLng(33.6483323, -117.754918);
 
@@ -14,7 +22,7 @@ function initialize() {
     });
 
     var request = {
-        location: pyrmont,
+        location: center,
         radius: 10000,
         types: ['cafe', 'meal_takeaway', 'restaurant', 'bakery', 'food', 'meal_delivery'],
         keyword: 'chinese|pizza|steak|italian',

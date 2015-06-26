@@ -14,7 +14,7 @@
 
 	// $key_values = "'".implode("','",$file_md5s)."'";
 	// SELECT * FROM `food_images` WHERE type = 'BBQ'
-	$query = "SELECT img_src FROM `food_images` WHERE `type` = '$type'";
+	$query = "SELECT `type`,`img_src` FROM `food_images` WHERE `type` = '$type'";
 	// print_r($query);
 
 	$result = mysqli_query($db,$query);
@@ -28,16 +28,27 @@
 		// print_r($result);
 		while($row = mysqli_fetch_assoc($result)){
 			// print_r($row);
+			// print($row['type']);
+			$link_type[] = $row;
+
 			$output['success']=true;
-			$output['links'][]=$row;
-	// 		unset($to_insert[$row['key']]);
+			// $output['data'][]=$row;
+			// $output['type'][]=$row;
+			// unset($to_insert[$row['key']]);
 		}
+		// print_r($link_type);
+		$output['data'] = $link_type;
 	}
 	else{
 		// print('mysqli_num_rows in false: '. mysqli_num_rows($result));
 		$output['success'] = false;
 	}
 
+
+// array(
+// 	array("link"=>"", "type"=>""),
+
+// )
 	$output_string = json_encode($output);
 	print($output_string);
 

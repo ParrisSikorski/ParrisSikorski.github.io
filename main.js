@@ -1,4 +1,4 @@
-var files_response;
+/*var files_response;
 var current_image_index = 0;
 var img_array = [];
 var next_img_index = 1;
@@ -287,3 +287,4 @@ $(document).ready(function() {
     });    
 
 });
+*/

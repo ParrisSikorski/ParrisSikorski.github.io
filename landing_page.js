@@ -1,4 +1,5 @@
 // landing_page.js
+var insert_array = [];
 var storage_array = [];
 var image_array = [];
 var current_image_index = 0;
@@ -16,7 +17,14 @@ var no_array = [];
 var valid_array = [];
 // var type = '';
 var gbl_type = '';
-
+var yes_chosen = [];
+var final_type = '';
+var map;
+var infowindow;
+var photo;
+var restaurant_id = [];
+var lat = '';
+var lon = '';
 
 function load_landing_page() {
     $.ajax({
@@ -75,7 +83,7 @@ function load_landing_page() {
                 div_container.append(img_div);
                 image_array.push(img);
                 // $('#lnd_img_cntnr').append(div_container);
-     			$('#landing_container').append(div_container);
+                $('#landing_container').append(div_container);
             }
             // initialize_images();
         }
@@ -104,22 +112,21 @@ function logout_to_mainpage() {
     })
 }
 
-function logout(){
-	console.log("inside the logout function");
-	$.ajax({
-		dataType: 'JSON',
-		url: 'log_out.php',
-		method: 'POST',
-		success: function(response){
-			console.log('response: ', response);
-			if (response.success){
-				load_user_data();
-			}
-			else {
-				logout_to_mainpage();
-			}
-		}
-	})
+function logout() {
+    console.log("inside the logout function");
+    $.ajax({
+        dataType: 'JSON',
+        url: 'log_out.php',
+        method: 'POST',
+        success: function(response) {
+            console.log('response: ', response);
+            if (response.success) {
+                load_user_data();
+            } else {
+                logout_to_mainpage();
+            }
+        }
+    })
 }
 
 function load_user_data() {
@@ -306,23 +313,22 @@ function login_to_server() {
 }
 
 function check_login() {
-	$.ajax({
-		dataType: 'JSON',
-		url: 'logged_in.php',
-		method: 'POST',
-		success: function(response){
-			// if (response.success){
-				console.log('response: ', response);
+    $.ajax({
+        dataType: 'JSON',
+        url: 'logged_in.php',
+        method: 'POST',
+        success: function(response) {
+            // if (response.success){
+            console.log('response: ', response);
 
-			// }
-			if (response.success){
-				load_user_data();
-			}
-			else {
-				logout_to_mainpage();
-			}
-		}
-	})
+            // }
+            if (response.success) {
+                load_user_data();
+            } else {
+                logout_to_mainpage();
+            }
+        }
+    })
 }
 
 
@@ -458,34 +464,34 @@ function insert_images_to_db(gbl_type, insert_array) {
 
 
 function check_db_for_images(gbl_type) {
-	// console.log('i am being called');
-	$.ajax({
-		dataType: 'json',
-		method: 'POST',
-		data: {
-			type: gbl_type,
-		},
-		url: 'check_db_for_images.php',
-		cache: true,
-		crossDomain: true,
-		success: function(response){
-			if (response.success){
-				response_array = response.links;
-				for(var i = 0; i < response_array.length; i++){
-
-					search_array.push(response_array[i].img_src);
-					console.log(search_array[i]);
-
-				}
-				console.log("search_array: ",search_array);
-				// check_clicks();
-			}
-				// query_button_selected(search_array);
-			else{
-				// google_search(gbl_type);
-			}
-		}
-	})
+    // console.log('i am being called');
+    $.ajax({
+        dataType: 'json',
+        method: 'POST',
+        data: {
+            type: gbl_type,
+        },
+        url: 'check_db_for_images.php',
+        cache: true,
+        crossDomain: true,
+        success: function(response) {
+            if (response.success) {
+                response_array = response.data;
+                for (var i = 0; i < response_array.length; i++) {
+                    // search_array.push(response_array[i].img_src);
+                    search_array.push(response_array[i]);
+                    console.log('search_array index type: ', search_array[i].type);
+                    console.log('search_array index links: ', search_array[i].img_src);
+                }
+                console.log("search_array: ", search_array);
+                check_clicks();
+            }
+            // query_button_selected(search_array);
+            else if (!response.success) {
+                google_search(gbl_type);
+            }
+        }
+    })
 }
 
 
@@ -581,6 +587,7 @@ function send_to_swipe_page() {
                     .on('swipeleft', '.initialize', function() {
                         prev_image();
                     });
+                google.maps.event.addDomListener(window, 'load', initialize);
             }
         })
     }
@@ -594,7 +601,8 @@ function load_swipe_pages() {
     $('#lnd_img_cntnr').html('');
     for (var i = 0; i < search_array.length; i++) {
         var img = $("<img>", {
-            src: search_array[i],
+            src: search_array[i].img_src,
+            title: search_array[i].type,
             class: 'initialize',
             id: 'img-' + i
         });
@@ -667,24 +675,35 @@ function yes_display() {
     if (yes_array.length < 6) {
         return;
     } else {
-        $('#wrapper').html('');
+        $('#inner_wrapper').html('');
         for (var i = 0; i < yes_array.length; i++) {
+            var yes_div = $("<div>", {
+                class: 'yes_div_class col-xs-6 col-sm-6 col-md-4',
+            });
+
             yes_array[i].removeClass('initialize');
             yes_array[i].css({
                 left: 0
             });
-            yes_array[i].addClass('yes_initialize col-xs-4 col-md-4');
+            yes_array[i].addClass('yes_initialize ');
             console.log(yes_array[i], " is num ", i);
             yes_array[i].attr('data-id', i);
-            $('#wrapper').append(yes_array[i]);
+            yes_div.append(yes_array[i]);
+            $('#append_yes').append(yes_div);
 
             (function() {
                 var self = $(yes_array[i]); //
-
+                // var
                 self.click(function() {
                     console.log("the click handler is working");
-                    self.addClass('no_choice');
-                    self.text('X');
+                    self.addClass('yes_choice');
+                    // $(this).attr("#data-id")
+                    // console.log("data attribute " + $(this).attr("data-id"));
+                    console.log("title attribute " + $(this).attr("title"));
+                    final_type = $(this).attr("title");
+                    $('#myModal').modal('show');
+                    initialize();
+                    // yes_chosen.push(yes_array[i].title);
                 });
             })();
         }
@@ -719,12 +738,264 @@ function prev_image() {
     }
 }
 
-/////////// swipe functionality ending ///////
+// /////////// swipe functionality ending ///////
+
+// //////////// GOOGLE MAP API ///////////////////////
+
+// function load_map() {
+//     $.ajax({
+//         dataType: 'html',
+//         url: 'map_template.html',
+//         cache: false,
+//         success: function(response) {
+//             $('body').html('');
+//             $('body').html(response);
+//             // google.maps.event.addDomListener(window, 'load', initialize);
+//             // initialize();
+//             // populate_success_data();
+
+//         }
+//     })
+// }
 
 
+// function getLocation() {
+//     console.log('geolocation is being called');
+//     if (navigator.geolocation) {
+//         navigator.geolocation.getCurrentPosition(showPosition);
+//         // console.log("show position: ", position);
+//     } else {
+//         $('#error').append("Geolocation is not supported by this browser.");
+//     }
+// }
+
+// function showError(error) {
+//     switch (error.code) {
+//         case error.PERMISSION_DENIED:
+//             $('#error').append("User denied the request for Geolocation.");
+//             break;
+//         case error.POSITION_UNAVAILABLE:
+//             $('#error').append("Location information is unavailable.");
+//             break;
+//         case error.TIMEOUT:
+//             $('#error').append("The request to get user location timed out.");
+//             break;
+//         case error.UNKNOWN_ERROR:
+//             $('#error').append("An unknown error occurred.");
+//             break;
+//     }
+// }
+
+// function showPosition(position) {
+//     lat = position.coords.latitude;
+//     lon = position.coords.longitude;
+//     console.log("lat and lon: ", lat, " ", lon);
+//     console.log("final type: ", final_type);
+
+// }
+
+// function initialize() {
+//     navigator.geolocation.getCurrentPosition(function(position) {
+//     var uesr_location = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+//     console.log("lat and lon in initialize function: ", lat, " ", lon);
+//     var user_geolocation = new google.maps.LatLng(lat, lon);
+
+//     map = new google.maps.Map(document.getElementById('map-canvas'), {
+//         center: user_geolocation,
+//         zoom: 15
+//     });
+
+//     var request = {
+//         location: user_geolocation,
+//         radius: 10000,
+//         types: ['cafe', 'meal_takeaway', 'restaurant', 'bakery', 'food', 'meal_delivery'],
+//         keyword: final_type,
+//                         // zagatselected: true,
+//         };
+//         infowindow = new google.maps.InfoWindow();
+//         var service = new google.maps.places.PlacesService(map);
+//         service.nearbySearch(request, callback);
+
+//         })
+// } 
+
+// function callback(results, status) {
+//     if (status == google.maps.places.PlacesServiceStatus.OK) {
+//         for (var i = 0; i < results.length; i++) {
+//             restaurant_id.push(results[i].place_id);
+//             console.log(restaurant_id);
+//             console.log(results[i]);
+//             createMarker(results[i]);
+//         }
+//     }
+//     call_details(restaurant_id);
+//     }
+// function call_details(restaurant_id) {
+//     for (var i = 0; i < restaurant_id.length; i++) {
+//         initialize_details(restaurant_id[i]);
+//         console.log("inside call details: ", restaurant_id[i]);
+//     }
+// }
+
+// function createMarker(place) {
+//     var placeLoc = place.geometry.location;
+//     var marker = new google.maps.Marker({
+//         map: map,
+//         position: place.geometry.location
+//     });
+
+//     google.maps.event.addListener(marker, 'click', function() {
+//         infowindow.setContent(place.name);
+//         infowindow.open(map, this);
+//     });
+// }
+
+// function initialize_details(place_Id) {
+//     // var map = new google.maps.Map(document.getElementById('map-canvas'), {
+//     //   center: new google.maps.LatLng(33.8, -117.9),
+//     //   zoom: 13
+//     // });
+
+//     var request = {
+//         placeId: place_Id,
+//     };
+
+//     var infowindow = new google.maps.InfoWindow();
+//     var service = new google.maps.places.PlacesService(map);
+//     service.getDetails(request, function(place, status) {
+//         if (status == google.maps.places.PlacesServiceStatus.OK) {
+//             console.log(place.photos);
+//             for (var i = 0; i < place.photos.length; i++) {
+//                 var photo = place.photos[i].getUrl({
+//                     'maxWidth': 200,
+//                     'maxHeight': 200
+//                 });
+
+//                 (function(url) {
+//                     var urlValidatePromise = validate_url(url);
+//                     urlValidatePromise.then(function() {
+//                         var img = $('<img>', {
+//                             src: url,
+//                         });
+//                         $('#photo-results').append(img);
+//                     }).fail(function() {
+//                         console.log("img doesnt exist");
+//                     });
+
+//                 })(photo);
+//             }
+//             var marker = new google.maps.Marker({
+//                 map: map,
+//                 position: place.geometry.location
+//             });
+//             google.maps.event.addListener(marker, 'click', function() {
+//                 infowindow.setContent(place.name);
+//                 infowindow.open(map, this);
+//             });
+//         }
+//     });
+// }
+
+// function validate_url(url) {
+//     return $.ajax({
+//         url: url
+//     })
+// }
+
+// // google.maps.event.addDomListener(window, 'load', initialize_details);
 
 
+function initialize() {
+    navigator.geolocation.getCurrentPosition(function(position) {
+        var center = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+        console.log("center: ", center);
+        map_o = new google.maps.Map(document.getElementById('map-canvas'), {
+            center: center,
+            zoom: 12,
+        });
+        var request = {
+            location: center,
+            radius: 50000,
+            types: ['cafe', 'meal_takeaway', 'meal_delivery', 'food', 'restaurant'],
+            keyword: final_type,
+            sortby: "distance"
+        };
+        var cont_string =
+            '<div id="content">' +
+            '<div id="siteNotice">' +
+            '</div>' +
+            '<h4 id="firstHeading" class="firstHeading">You are Here!</h4>' +
+            '<div id="bodyContent">' +
+            '<p>Longitude: ' + Math.round(position.coords.longitude) + 'Latitude: ' + Math.round(position.coords.latitude) + '</p>';
+        infowindow = new google.maps.InfoWindow({
+            content: cont_string
+        });
+        var service = new google.maps.places.PlacesService(map_o);
+        service.nearbySearch(request, callback);
+        marker_user = new google.maps.Marker({
+            map: map_o,
+            position: center,
+            title: "You are Here!",
+        });
+        google.maps.event.addListener(marker_user, 'click', function() {
+            infowindow.setContent(cont_string);
+            infowindow.open(map_o, marker_user);
+        });
+    })
+}
 
+function callback(results, status) {
+    console.log('results', results);
+    console.log('status', status)
+    if (status == google.maps.places.PlacesServiceStatus.OK) {
+        for (var i = 0; i < results.length; i++) {
+            createMarker(results[i]);
+        }
+    }
+}
+
+function callback_l(results, status) {
+    console.log(results)
+    console.log(status)
+    if (status == google.maps.places.PlacesServiceStatus.OK) {
+        for (var i = 0; i < results.length; i++) {
+            createMarker_l(results[i]);
+        }
+    }
+}
+
+function createMarker(place) {
+    console.log(place);
+    var placeLoc = place.geometry.location;
+    var marker = new google.maps.Marker({
+        map: map_o,
+        position: place.geometry.location,
+        // icon: "images/rest.png",
+    });
+    var marker_content = "<h4>" + place.name + "</h4><p> Rating: " + place.rating + " </p>"
+    google.maps.event.addListener(marker, 'click', function() {
+        infowindow.setContent(marker_content);
+        infowindow.open(map_o, marker);
+    });
+}
+
+function createMarker_l(place) {
+    console.log(place);
+    lunch_array.push(place.name);
+    var placeLoc = place.geometry.location;
+    var marker = new google.maps.Marker({
+        map: map_o,
+        position: place.geometry.location,
+        // icon: "images/rest.png",
+    });
+    console.log(place.place_id);
+    place_id_holder = place.place_id;
+    var marker_content = "<h4>" + place.name + "</h4><p> Rating: " + place.rating;
+    google.maps.event.addListener(marker, 'click', function() {
+        infowindow.setContent(marker_content);
+        infowindow.open(map_o, marker);
+    });
+}
 $(document).ready(function() {
 
     // logout_to_mainpage();
