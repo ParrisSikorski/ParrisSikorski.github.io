@@ -1,0 +1,7 @@
+1. console log in the function wth the ajax call
+2. print out im here in the php file
+3. print out all variables that are being received ($_POST/$_GET)
+4. print out the query with info in it
+5. take that query and put it into phpmyadmin does it work
+6. then mysqli_query , num rows etc
+7.
